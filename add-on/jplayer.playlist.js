@@ -35,7 +35,7 @@
 				next: {
 					key: 39, // RIGHT
 					fn: function() {
-						self.next();
+						self.next(true);
 					}
 				},
 				previous: {
@@ -75,7 +75,7 @@
 
 		// Create an ended event handler to move to the next item
 		$(this.cssSelector.jPlayer).bind($.jPlayer.event.ended, function() {
-			self.next();
+			self.next(false);
 		});
 
 		// Create a play event handler to pause other instances
@@ -100,7 +100,7 @@
 		});
 
 		$(this.cssSelector.next).click(function() {
-			self.next();
+			self.next(true);
 			$(this).blur();
 			return false;
 		});
@@ -220,7 +220,7 @@
 				$(this.cssSelector.playlist + " ul").slideUp(displayTime, function() {
 					var $this = $(this);
 					$(this).empty();
-					
+
 					$.each(self.playlist, function(i) {
 						$this.append(self._createListItem(self.playlist[i]));
 					});
@@ -421,8 +421,20 @@
 		pause: function() {
 			$(this.cssSelector.jPlayer).jPlayer("pause");
 		},
-		next: function() {
-			var index = (this.current + 1 < this.playlist.length) ? this.current + 1 : 0;
+		next: function(skipped) {
+			var prevIndex = this.current,
+				index = (this.current + 1 < this.playlist.length) ? this.current + 1 : 0;
+
+			// even though jPlayer pauses just before next...
+			if(!this.paused) {
+				this.timeSpent += new Date().getTime() - this.startTime;
+			}
+
+			// time spent on previous song
+			var data = {
+				timeSpentSecs: this.timeSpent / 1000,
+				timeSpentRatio: (this.timeSpent / 1000) / $(this.cssSelector.jPlayer).data("jPlayer").status.duration
+			};
 
 			if(this.loop) {
 				// See if we need to shuffle before looping to start, and only shuffle if more than 1 item.
