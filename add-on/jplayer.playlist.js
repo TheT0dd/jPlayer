@@ -460,6 +460,8 @@
 				// The index will be zero if it just looped round
 				if(index > 0) {
 					this.play(index);
+				} else {
+					this.select(index);
 				}
 			}
 
