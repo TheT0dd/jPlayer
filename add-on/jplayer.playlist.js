@@ -276,8 +276,8 @@
 			}
 
 			// The title is given next in the HTML otherwise the float:right on the free media corrupts in IE6/7
-			listItem += "<a href='javascript:;' class='" + this.options.playlistOptions.itemClass + "' tabindex='1'>" + media.title + (media.artist ? " <span class='jp-artist'>by " + media.artist + "</span>" : "") + "</a>";
-			listItem += "</div></li>";
+			listItem += "<a href='javascript:;' class='" + this.options.playlistOptions.itemClass + "' tabindex='1'>" + (media.artist ? "<span class='jp-artist'>" + media.artist.name + "</span> - " : "") + "<span class='jp-song'>" + media.title + "</span>";
+			listItem += "<div class='icon icon-less'><i class='glyphicon glyphicon-minus'></i></div><div class='icon icon-more'><i class='glyphicon glyphicon-plus'></i></div></a></div></li>";
 
 			return listItem;
 		},
@@ -328,7 +328,7 @@
 			if(this.playlist.length && index !== undefined) {
 				$(this.cssSelector.playlist + " .jp-playlist-current").removeClass("jp-playlist-current");
 				$(this.cssSelector.playlist + " li:nth-child(" + (index + 1) + ")").addClass("jp-playlist-current").find(".jp-playlist-item").addClass("jp-playlist-current");
-				$(this.cssSelector.title + " li").html(this.playlist[index].title + (this.playlist[index].artist ? " <span class='jp-artist'>by " + this.playlist[index].artist + "</span>" : ""));
+				$(this.cssSelector.title + " li").html(this.playlist[index].title + (this.playlist[index].artist ? " - <span class='jp-artist'>" + this.playlist[index].artist + "</span>" : ""));
 			}
 		},
 		setPlaylist: function(playlist) {
