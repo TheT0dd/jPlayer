@@ -29,6 +29,10 @@
 		this.shuffled = false;
 		this.removing = false; // Flag is true during remove animation, disabling the remove() method until complete.
 
+		this.paused = false; // Flag is true while playlist is paused
+		this.startTime; // Timestamp of last getTime()
+		this.timeSpent = 0; // Secs spent on current track (excluding pause)
+
 		this.cssSelector = $.extend({}, this._cssSelector, cssSelector); // Object: Containing the css selectors for jPlayer and its cssSelectorAncestor
 		this.options = $.extend(true, {
 			keyBindings: {
@@ -78,9 +82,18 @@
 			self.next(false);
 		});
 
-		// Create a play event handler to pause other instances
+		// Create a play event handler to pause other instances & calculate time spent on track
 		$(this.cssSelector.jPlayer).bind($.jPlayer.event.play, function() {
+			self.paused = false;
 			$(this).jPlayer("pauseOthers");
+			self.startTime = new Date().getTime();
+		});
+
+		// Create a pause event handler to calculate time spent on track
+		$(this.cssSelector.jPlayer).bind($.jPlayer.event.pause, function() {
+			self.paused = true;
+			self.timeSpent += new Date().getTime() - self.startTime;
+			console.log("pause: time spent till now: " + self.timeSpent/1000);
 		});
 
 		// Create a resize event handler to show the title in full screen mode.
@@ -269,33 +282,33 @@
 			return listItem;
 		},
 		_createItemHandlers: function() {
-			var self = this;
-			// Create live handlers for the playlist items
-			$(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.itemClass).on("click", "a." + this.options.playlistOptions.itemClass, function() {
-				var index = $(this).parent().parent().index();
-				if(self.current !== index) {
-					self.play(index);
-				} else {
-					$(self.cssSelector.jPlayer).jPlayer("play");
-				}
-				$(this).blur();
-				return false;
-			});
+			// var self = this;
+			// // Create live handlers for the playlist items
+			// $(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.itemClass).on("click", "a." + this.options.playlistOptions.itemClass, function() {
+			// 	var index = $(this).parent().parent().index();
+			// 	if(self.current !== index) {
+			// 		self.play(index);
+			// 	} else {
+			// 		$(self.cssSelector.jPlayer).jPlayer("play");
+			// 	}
+			// 	$(this).blur();
+			// 	return false;
+			// });
 
-			// Create live handlers that disable free media links to force access via right click
-			$(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.freeItemClass).on("click", "a." + this.options.playlistOptions.freeItemClass, function() {
-				$(this).parent().parent().find("." + self.options.playlistOptions.itemClass).click();
-				$(this).blur();
-				return false;
-			});
+			// // Create live handlers that disable free media links to force access via right click
+			// $(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.freeItemClass).on("click", "a." + this.options.playlistOptions.freeItemClass, function() {
+			// 	$(this).parent().parent().find("." + self.options.playlistOptions.itemClass).click();
+			// 	$(this).blur();
+			// 	return false;
+			// });
 
-			// Create live handlers for the remove controls
-			$(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.removeItemClass).on("click", "a." + this.options.playlistOptions.removeItemClass, function() {
-				var index = $(this).parent().parent().index();
-				self.remove(index);
-				$(this).blur();
-				return false;
-			});
+			// // Create live handlers for the remove controls
+			// $(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.removeItemClass).on("click", "a." + this.options.playlistOptions.removeItemClass, function() {
+			// 	var index = $(this).parent().parent().index();
+			// 	self.remove(index);
+			// 	$(this).blur();
+			// 	return false;
+			// });
 		},
 		_updateControls: function() {
 			if(this.options.playlistOptions.enableRemoveControls) {
