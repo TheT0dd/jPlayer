@@ -465,6 +465,18 @@
 					$(this).slideDown(self.options.playlistOptions.shuffleTime);
 				});
 			}
+		},
+		getCurrentTrack: function() {
+			return this.playlist[this.current];
+		},
+		getCurrentArtist: function() {
+			return this.playlist[this.current].artist;
+		},
+		getSize: function() {
+			return this.playlist.length;
+		},
+		getCompletionRate: function() {
+			return this.current/this.getSize();
 		}
 	};
 })(jQuery);
