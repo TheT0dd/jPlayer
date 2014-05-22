@@ -147,7 +147,11 @@
 				itemClass: "jp-playlist-item",
 				freeGroupClass: "jp-free-media",
 				freeItemClass: "jp-playlist-item-free",
-				removeItemClass: "jp-playlist-item-remove"
+				removeItemClass: "jp-playlist-item-remove",
+				songChanged: null, // Callback function that executes each time a song changes
+				songEnded: null, // Callback function that executes each time a song ends
+				songSkipped: null, // Callback function that executes each time a song is skipped
+				playlistEnded: null // Callback function that executes when playlist ends
 			}
 		},
 		option: function(option, value) { // For changing playlist options only
@@ -397,6 +401,11 @@
 			} else {
 				this.current = 0;
 			}
+			if( $.isFunction(this.options.playlistOptions.songChanged) ) {
+				this.options.playlistOptions.songChanged.call(this, this.playlist[this.current]);
+			}
+			this.paused = false;
+			this.timeSpent = 0;
 		},
 		play: function(index) {
 			index = (index < 0) ? this.original.length + index : index; // Negative index relates to end of array.
@@ -407,7 +416,7 @@
 				}
 			} else if(index === undefined) {
 				$(this.cssSelector.jPlayer).jPlayer("play");
-			}
+			};
 		},
 		pause: function() {
 			$(this.cssSelector.jPlayer).jPlayer("pause");
@@ -428,6 +437,20 @@
 					this.play(index);
 				}
 			}
+
+			// Skip callback
+			if(skipped && $.isFunction(this.options.playlistOptions.songSkipped)) {
+				this.options.playlistOptions.songSkipped.call(this, this.playlist[prevIndex], data);
+			}
+			// End callback
+			if(!skipped && $.isFunction(this.options.playlistOptions.songEnded)) {
+				this.options.playlistOptions.songEnded.call(this, this.playlist[prevIndex], data);
+			}
+			// If index is zero, the playlist has ended: playlistEnded callback
+			if(index == 0 && $.isFunction(this.options.playlistOptions.playlistEnded)) {
+				this.options.playlistOptions.playlistEnded.call();
+			}
+			this.timeSpent = 0;
 		},
 		previous: function() {
 			var index = (this.current - 1 >= 0) ? this.current - 1 : this.playlist.length - 1;
